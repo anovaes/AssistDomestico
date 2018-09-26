@@ -1,4 +1,6 @@
-﻿using ExpectedObjects;
+﻿using AssistDomestico.Fin.DominioTest._Base;
+using AssistDomestico.Fin.DominioTest._Util;
+using ExpectedObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -51,11 +53,11 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
         [InlineData("@¨#&@¨¨#")]
         public void NaoDeveUsuarioPossuirNomeInvalido(string nomeUsuarioInvalido)
         {
-            var ex = Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<DominioException>(() =>
                 new Usuario(nomeUsuarioInvalido,_email,_senha,_nascimento,_sexo,_cpf)    
-            );
+            ).TestarMensagem("Nome de usuário inválido");
 
-            Assert.Equal("Nome de usuário inválido", ex.Message);
+            
         }
     }
 
@@ -70,8 +72,9 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
 
         public Usuario(string nome, string email, string senha, DateTime nascimento, Sexo sexo, string cpf)
         {
-            if (string.IsNullOrWhiteSpace(nome))
-                throw new ArgumentException("Nome de usuário inválido");
+            ValidarRegra.Novo()
+                .Quando(string.IsNullOrWhiteSpace(nome), "Nome de usuário inválido")
+                .DispararErro();
 
             Nome = nome;
             Email = email;
