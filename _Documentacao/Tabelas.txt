@@ -1,0 +1,144 @@
+AssistenteDomestico
+
+***********************************************************
+** Usuario
+***********************************************************
+create table t_usuario(
+    id_usuario			int IDENTITY(1,1) PRIMARY KEY,
+    nm_usuario			varchar(100) NOT NULL,
+    nm_email			varchar(100) NOT NULL,
+    nm_senha			varchar(100) NOT NULL,
+    dt_nascimento   	Datetime,
+    cd_sexo				char(1) NOT NULL,
+    nr_cpf				varchar(11)
+)
+
+- Não permitir usuário com nome inválido ou duplicado 
+- Não permitir usuário com email inválido ou duplicado
+- Não permitir usuário com senha inválida
+- Não permitir usuário com sexo inválido
+- Não permitir usuário com cpf inválido ou duplicado 
+
+***********************************************************
+** Banco
+***********************************************************
+create table t_banco(
+    id_banco	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    cd_banco	varchar(5) NOT NULL,
+    nm_banco	varchar(100) NOT NULL,
+    fl_ativo	bit
+)
+
+***********************************************************
+** Conta
+***********************************************************
+create table t_conta(
+    id_conta	    int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	    int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    id_banco	    int	FOREIGN KEY REFERENCES t_banco(id_banco) NOT NULL,
+    nm_conta	    varchar(100) NOT NULL,
+    nr_conta        varchar(20) NOT NULL,
+    fl_ativo   	    bit NOT NULL,
+    fl_principal	bit NOT NULL
+)
+
+***********************************************************
+** Categoria
+***********************************************************
+create table t_categoria(
+    id_categoria	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	    int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    nm_categoria	varchar(100) NOT NULL
+)
+
+***********************************************************
+** Forma Pagamento
+***********************************************************
+create table t_forma_pagamento(
+    id_forma_pagamento	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	        int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    nm_forma_pagamento	    varchar(100) NOT NULL
+)
+
+***********************************************************
+** Tipo Transacao
+***********************************************************
+create table t_tipo_transacao(
+    id_tipo_transacao	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	        int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    nm_tipo_transacao	varchar(100) NOT NULL -- Default: receita / despesa
+)
+
+***********************************************************
+** Tipo Pessoa
+***********************************************************
+create table t_tipo_pessoa(
+    id_tipo_pessoa	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	    int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    nm_tipo_pessoa	varchar(100) NOT NULL
+)
+
+***********************************************************
+** Pessoa
+***********************************************************
+create table t_pessoa(
+    id_pessoa		int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	    int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    id_tipo_pessoa	int	FOREIGN KEY REFERENCES t_tipo_pessoa(id_tipo_pessoa) NOT NULL,
+    nm_pessoa		varchar(100) NOT NULL,
+    nr_cpf_cnpj 	varchar(15)
+)
+
+***********************************************************
+** Pessoa Fisica
+***********************************************************
+create table t_pessoa_fisica(
+    id_pessoa_fisica	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	        int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    id_pessoa	        int	FOREIGN KEY REFERENCES t_pessoa(id_pessoa) NOT NULL,
+    nm_relacao		    varchar(100) --Exemplo: Esposa / Mãe / Pai
+) 
+
+***********************************************************
+** Tipo Pessoa Juridica
+***********************************************************
+create table t_tipo_pessoa_juridica(
+    id_tipo_pessoa_juridica	int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	            int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    nm_tipo_pessoa_juridica	varchar(100) NOT NULL --Default: Empresa física/Empresa Virtual
+) 
+
+***********************************************************
+** Pessoa Juridica
+***********************************************************
+create table t_pessoa_juridica(
+    id_pessoa_juridica	    int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	            int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    id_pessoa				int FOREIGN KEY REFERENCES t_pessoa(id_pessoa) NOT NULL,
+    id_tipo_pessoa_juridica	int FOREIGN KEY REFERENCES t_tipo_pessoa_juridica(id_tipo_pessoa_juridica) NOT NULL,
+    nm_pais					varchar(100),
+    nm_uf					varchar(2),
+    nm_cidade				varchar(100),
+    nm_bairro				varchar(100),
+    nm_Logradouro			varchar(100),
+    nr_logradouro			varchar(10),
+    nm_site					varchar(100)
+)
+
+***********************************************************
+** Transacao
+***********************************************************
+create table t_transacao(
+    id_transacao	    int IDENTITY(1,1) PRIMARY KEY,
+    id_usuario	        int	FOREIGN KEY REFERENCES t_usuario(id_usuario) NOT NULL,
+    id_pessoa			int FOREIGN KEY REFERENCES t_pessoa(id_pessoa) NOT NULL,
+    id_conta			int FOREIGN KEY REFERENCES t_conta(id_conta) NOT NULL,
+    id_categoria		int	FOREIGN KEY REFERENCES t_categoria(id_categoria) NOT NULL,
+    id_forma_pagamento	int FOREIGN KEY REFERENCES t_forma_pagamento(id_forma_pagamento) NOT NULL,
+    id_tipo_transacao	int	FOREIGN KEY REFERENCES t_tipo_transacao(id_tipo_transacao) NOT NULL,
+    nm_titulo			varchar(100) NOT NULL,
+    dt_transacao		datetime NOT NULL,
+    vl_transacao		decimal NOT NULL,
+    ds_transacao		varchar(max)
+)
