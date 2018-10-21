@@ -7,6 +7,7 @@ create table t_usuario(
     id_usuario			int IDENTITY(1,1) PRIMARY KEY,
     nm_usuario			varchar(100) NOT NULL,
     nm_email			varchar(100) NOT NULL,
+	nm_login			varchar(30) NOT NULL,
     nm_senha			varchar(100) NOT NULL,
     dt_nascimento   	Datetime,
     cd_sexo				char(1) NOT NULL,
