@@ -1,4 +1,5 @@
-﻿using Bogus;
+﻿using AssistDomestico.Fin.DominioTest._Base;
+using Bogus;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -85,6 +86,35 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
         public Usuario Criar()
         {
             return new Usuario(_nome, _email, _login, _senha, _nascimento, _sexo, _cpf);
+        }
+
+        public Usuario Criar(out string msg)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Nome : {_nome}");
+            sb.AppendLine($"Email: {_email}");
+            sb.AppendLine($"Login: {_login}");
+            sb.AppendLine($"Senha: {_senha}");
+            sb.AppendLine($"Nasc.: {_nascimento.ToString("dd/MM/yyyy")}");
+            sb.AppendLine($"Sexo : {_sexo.ToString()}");
+            sb.AppendLine($"CPF  : {_cpf}");
+            sb.AppendLine();
+
+            Usuario usuario = null;
+            msg = "";
+
+            try
+            {
+                usuario = new Usuario(_nome, _email, _login, _senha, _nascimento, _sexo, _cpf);
+            }
+            catch (Exception ex)
+            {
+                //ex.MensagensDeErro.ForEach(x => sb.AppendLine(x));
+                msg = sb.ToString();
+
+            }
+
+            return usuario;
         }
     }
 }

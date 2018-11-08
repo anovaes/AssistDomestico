@@ -16,7 +16,7 @@ namespace AssistDomestico.Fin.DominioTest._Base
             if (texto == null)
                 return false;
 
-            return Regex.Match(texto, "^[a-z A-Z À-Ú à-ú]*$").Success;
+            return Regex.Match(texto, "^[a-z A-Z À-Ú à-ú ']*$").Success;
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
 
         #region Criar Objeto
         [Fact(DisplayName = "DeveCriarUsuario")]
-        public void DeveCriarusuario()
+        public void DeveCriarUsuario()
         {
             var usuarioEsperado = new
             {
@@ -48,7 +48,6 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
             };
 
             var usuario = new Usuario(usuarioEsperado.Nome, usuarioEsperado.Email, usuarioEsperado.Login, usuarioEsperado.Senha, usuarioEsperado.Nascimento, usuarioEsperado.Sexo, usuarioEsperado.CPF);
-
             usuarioEsperado.ToExpectedObject().ShouldMatch(usuario);
         }
 
@@ -118,7 +117,7 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
             ).TestarMensagem(Resource.Usuario_SenhaObrigatoria);
         }
 
-        [Theory(DisplayName = "NaoDeveUsuarioPossuirSenhaNulaOuEmBranco")]
+        [Theory(DisplayName = "NaoDeveUsuarioPossuirCPFInvalido")]
         [InlineData("aaaa")]
         [InlineData("22.65")]
         [InlineData("22.65.11")]
@@ -137,29 +136,48 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
         #endregion
 
         #region Alterar Objeto
+
         [Theory(DisplayName = "NaoDeveAlterarNomeDoUsuarioComNomeNuloOuEmBranco")]
         [InlineData("")]
         [InlineData("     ")]
         [InlineData(null)]
         public void NaoDeveAlterarNomeDoUsuarioComNomeNuloOuEmBranco(string nomeUsuarioNulo)
         {
-            var usuarioJaCadastrado = UsuarioBuilder.Novo().Criar();
+            var usuarioJaCadastrado = UsuarioBuilder.Novo().Criar(out string msg);
+            Assert.True(string.IsNullOrEmpty(msg), msg);
 
             Assert.Throws<DominioException>(() =>
                 usuarioJaCadastrado.AlterarNome(nomeUsuarioNulo)
             ).TestarMensagem(Resource.Usuario_NomeObrigatorio);
         }
 
-        //[Theory(DisplayName = "NaoDeveUsuarioPossuirNomeComCaracteresInvalidos")]
-        //[InlineData("12345")]
-        //[InlineData("@¨#&@¨¨#")]
-        //[InlineData("J04O )4 $1lva")]
-        //public void NaoDeveUsuarioPossuirNomeComCaracteresInvalidos(string nomeUsuarioInvalido)
-        //{
-        //    Assert.Throws<DominioException>(() =>
-        //        UsuarioBuilder.Novo().ComNome(nomeUsuarioInvalido).Criar()
-        //    ).TestarMensagem(Resource.Usuario_NomeComCaracteresInvalidos);
-        //}
+        [Theory(DisplayName = "NaoDeveAlterarNomeDoUsuarioComCaracteresInvalidos")]
+        [InlineData("12345")]
+        [InlineData("@¨#&@¨¨#")]
+        [InlineData("J04O )4 $1lva")]
+        public void NaoDeveAlterarNomeDoUsuarioComCaracteresInvalidos(string nomeUsuarioInvalido)
+        {
+            var usuarioJaCadastrado = UsuarioBuilder.Novo().Criar(out string msg);
+            Assert.True(string.IsNullOrEmpty(msg), msg);
+
+            Assert.Throws<DominioException>(() =>
+                usuarioJaCadastrado.AlterarNome(nomeUsuarioInvalido)
+            ).TestarMensagem(Resource.Usuario_NomeComCaracteresInvalidos);
+        }
+
+        [Theory(DisplayName = "NaoDeveAlterarSenhaDoUsuarioComSenhaNulaOuEmBranco")]
+        [InlineData("")]
+        [InlineData("     ")]
+        [InlineData(null)]
+        public void NaoDeveAlterarSenhaDoUsuarioComSenhaNulaOuEmBranco(string senhaUsuarioNula)
+        {
+            var usuarioJaCadastrado = UsuarioBuilder.Novo().Criar(out string msg);
+            Assert.True(string.IsNullOrEmpty(msg), msg);
+
+            Assert.Throws<DominioException>(() =>
+                usuarioJaCadastrado.AlterarSenha(senhaUsuarioNula)
+            ).TestarMensagem(Resource.Usuario_SenhaObrigatoria);
+        }
 
         #endregion
     }
@@ -195,9 +213,23 @@ namespace AssistDomestico.Fin.DominioTest.Usuarios
             CPF = cpf;
         }
 
-        internal void AlterarNome(string nomeUsuarioNulo)
+        internal void AlterarNome(string nome)
         {
-            throw new NotImplementedException();
+            ValidarRegra.Novo()
+                .Quando(string.IsNullOrWhiteSpace(nome), Resource.Usuario_NomeObrigatorio)
+                .Quando(!nome.ContemApenasLetras(), Resource.Usuario_NomeComCaracteresInvalidos)
+                .DispararErro();
+
+            Nome = nome;
+        }
+
+        internal void AlterarSenha(string senha)
+        {
+            ValidarRegra.Novo()
+                .Quando(string.IsNullOrWhiteSpace(senha), Resource.Usuario_SenhaObrigatoria)
+                .DispararErro();
+
+            Senha = senha;
         }
 
         #region Validação
